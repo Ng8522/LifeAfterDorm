@@ -17,11 +17,9 @@ class Explore_Fragment : Fragment() {
     ): View? {
         binding = FragmentExploreBinding.inflate(inflater, container, false)
         val view = binding.root
-
         binding.btnExplore.setOnClickListener {
             findNavController().navigate(R.id.action_exploreFragment_to_loginFragment)
         }
-
         return view
     }
 }
