@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "931933868196",
+    "project_id": "lifeafterdormdb",
+    "storage_bucket": "lifeafterdormdb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931933868196:android:34d31b0059e57d5f88d631",
+        "android_client_info": {
+          "package_name": "com.example.lifeafterdorm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC__nbvlJEUXAs_yHJSYnWGvZXlhcZlLSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
