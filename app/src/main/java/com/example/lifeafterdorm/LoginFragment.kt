@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.TextUtils.replace
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import androidx.fragment.app.Fragment
@@ -14,16 +13,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
-import com.example.lifeafterdorm.controller.generateSalt
 import com.example.lifeafterdorm.controller.getUserId
-import com.example.lifeafterdorm.controller.isEmailExists
-import com.example.lifeafterdorm.controller.isPasswordExists
-import com.example.lifeafterdorm.controller.verifyPassword
+import com.example.lifeafterdorm.controller.sha256
 import com.example.lifeafterdorm.databinding.FragmentLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
+    private var auth = FirebaseAuth.getInstance()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,52 +39,45 @@ class LoginFragment : Fragment() {
         binding.tvRegister.text = spanRegister
         binding.tvRegister.movementMethod = LinkMovementMethod.getInstance()
 
-        val spanForgotPass = SpannableString(binding.tvForgortPassword.text)
+        val spanForgotPass = SpannableString(binding.tvForgotPassword.text)
         val clickToForgotPass = object  : ClickableSpan(){
             override fun onClick(widget: View) {
                 findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
             }
         }
         spanForgotPass.setSpan(clickToForgotPass, 0, spanForgotPass.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        binding.tvForgortPassword.text = spanForgotPass
-        binding.tvForgortPassword.movementMethod = LinkMovementMethod.getInstance()
+        binding.tvForgotPassword.text = spanForgotPass
+        binding.tvForgotPassword.movementMethod = LinkMovementMethod.getInstance()
 
         binding.btnLogin.setOnClickListener {
             val errorMsg = ArrayList<String>()
             val email:String = binding.ptEmail.text.toString().trim()
             val password:String = binding.ptPassword.text.toString().trim()
             if(email.isNotEmpty()&&password.isNotEmpty()){
-                isEmailExists(email) { emailExists ->
-                    if (!emailExists) {
-                        errorMsg.add("The email not found.Or you forgot to register?")
-                    }else{
-                        isPasswordExists(email){ getPassword ->
-                            if(getPassword.isNotEmpty()){
-                                val matchedPass = verifyPassword(password, getPassword, generateSalt())
-                                if(!matchedPass)
-                                    errorMsg.add("Password is incorrect.")
-
-                            }else{
-                                errorMsg.add("Password error.")
+                if (errorMsg.isEmpty()) {
+                    auth.signInWithEmailAndPassword(email, sha256(password))
+                        .addOnCompleteListener(requireActivity()) { task ->
+                            if (task.isSuccessful) {
+                                getUserId(email){
+                                        getId ->
+                                    if(!getId.isNullOrBlank()){
+                                        binding.userId = getId
+                                        Toast.makeText(requireContext(), "Sign in successful! Your user id is ${binding.userId}", Toast.LENGTH_SHORT).show()
+                                        SuccessLoginBox()
+                                    }else{
+                                        FailedLoginBox("Your id not found. Please register.")
+                                    }
+                                }
+                            } else {
+                                FailedLoginBox("Please check your email and password is correct or " +
+                                        "already registered.")
                             }
                         }
-                    }
+                } else {
+                    FailedLoginBox(errorMsg.joinToString("\n"))
                 }
             }else{
-                errorMsg.add("Please fill in all mandatory fields.")
-            }
-            if (errorMsg.isEmpty()) {
-                getUserId(email){
-                    getId ->
-                    if(!getId.isNullOrBlank()){
-                        binding.userId = getId
-                    }else{
-                        errorMsg.add("Your id not found. Please register.")
-                    }
-                }
-                SuccessLoginBox()
-            } else {
-                FailedLoginBox(errorMsg.joinToString("\n"))
+                FailedLoginBox("Please fill in all mandatory fields.")
             }
 
         }

@@ -4,6 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.Dialog
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
@@ -26,8 +28,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.core.view.isNotEmpty
+import androidx.databinding.DataBindingUtil.setContentView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.lifeafterdorm.data.Location
@@ -49,6 +55,8 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.File
 import java.io.FileOutputStream
+import com.google.firebase.auth.FirebaseAuth
+
 
 class RegisterFragment : Fragment() {
     private lateinit var binding: FragmentRegisterBinding
@@ -59,7 +67,7 @@ class RegisterFragment : Fragment() {
     private lateinit var imagePath:Uri
     private lateinit var dbRef : DatabaseReference
     private lateinit var storageRef : StorageReference
-    private val salt = generateSalt()
+    private var auth = FirebaseAuth.getInstance()
 
     @SuppressLint("WrongThread")
     override fun onCreateView(
@@ -133,7 +141,6 @@ class RegisterFragment : Fragment() {
         spanTerm.setSpan(clickableToTerm, 11, spanTerm.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         binding.cbTerms.text = spanTerm
         binding.cbTerms.movementMethod = LinkMovementMethod.getInstance()
-
         binding.btnLocation.setOnClickListener {
             getCurrentLocation()
         }
@@ -146,27 +153,37 @@ class RegisterFragment : Fragment() {
             val email: String = binding.tfEmail.text.toString().trim()
             val password: String = binding.tfPassword.text.toString().trim()
             val phoneNum: String = binding.tfPhoneNum.text.toString().trim()
-            var hashedPassword: String = ""
             val errorMsg = ArrayList<String>()
+            var gender:String = ""
+            var hashedPass:String = ""
 
             if(email.isNotEmpty() && password.isNotEmpty() && phoneNum.isNotEmpty() &&
-            ::currentLocation.isInitialized && national.isNotEmpty()){
-                if(passwordFormat(password)){
-                    hashedPassword = hashPassword(password, salt)
-                }else if(!passwordFormat(password)){
+            ::currentLocation.isInitialized && national.isNotEmpty() && binding.rbgGender.isNotEmpty()){
+                if(!passwordFormat(password)){
                     errorMsg.add("Password format wrong must be 1 Upper & lowercase, special character and number.")
+                }else{
+                    hashedPass = sha256(password)
                 }
-                isEmailExists(email) { emailExists ->
-                    if (emailExists) {
+                var emailExist = isEmailExists(requireContext(), email)
+
+                if (emailExist) {
                         errorMsg.add("This email has already been used.")
-                    }
                 }
-                isPhoneExists(phoneNum){
-                    phoneExists ->
-                    if (phoneExists){
-                        errorMsg.add("The phone has already been used.")
+                val checkedRadioButtonId = binding.rbgGender.checkedRadioButtonId
+                if (checkedRadioButtonId != -1) {
+                    gender = when (checkedRadioButtonId) {
+                        binding.rbMale.id -> "M"
+                        binding.rbFemale.id -> "F"
+                        else -> ""
                     }
+                } else {
+                    errorMsg.add("Please select a gender.")
                 }
+
+                var phoneNumExist = isPhoneExists(requireContext(), phoneNum)
+                if(phoneNumExist)
+                    errorMsg.add("This phone already exists.")
+
                 if(!isValidEmail(email)){
                     errorMsg.add("Email format wrong.")
                 }
@@ -176,6 +193,9 @@ class RegisterFragment : Fragment() {
             }else{
                 errorMsg.add("Please field in all mandatory details.\nClick 'Get Me' button to get location")
             }
+
+            if(!binding.cbTerms.isChecked)
+                errorMsg.add("Please read our terms and conditions and check it.")
 
             if (errorMsg.isEmpty()) {
                 isUserIDExists(requireContext()) { idExisted ->
@@ -187,14 +207,15 @@ class RegisterFragment : Fragment() {
                                     id = newUserid,
                                     name = "User $newUserid",
                                     email = email,
-                                    password = hashedPassword,
+                                    gender = gender,
+                                    password = hashedPass,
                                     location = currentLocation,
                                     nationality = national,
                                     phoneNum = phoneNum,
                                     profileImg = imagePath.toString()
                                 )
                                 uploadImageToFirebase(newUserid)
-                                writeToFirebase(newUser)
+                                signUpWithUserClass(newUser)
                             }
                         }
                     } else {
@@ -202,14 +223,15 @@ class RegisterFragment : Fragment() {
                             id = "U0001",
                             name = "User U0001",
                             email = email,
-                            password = hashedPassword,
+                            gender = gender,
+                            password = hashedPass,
                             location = currentLocation,
                             nationality = national,
                             phoneNum = phoneNum,
                             profileImg = imagePath.toString()
                         )
                         uploadImageToFirebase("U0001")
-                        writeToFirebase(newUser)
+                        signUpWithUserClass(newUser)
                     }
                 }
                 showSuccessDialog()
@@ -232,6 +254,24 @@ class RegisterFragment : Fragment() {
                 Toast.makeText(requireContext(), "Fail to upload image", Toast.LENGTH_LONG).show()
             }
     }
+
+    private fun signUpWithUserClass(user: User) {
+        auth.createUserWithEmailAndPassword(user.email, user.password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    sendVerificationEmail(requireContext())
+                    writeToFirebase(user)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Sign up failed. ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+    }
+
+
 
     private fun writeToFirebase(user: User) {
         dbRef = FirebaseDatabase.getInstance().getReference("User")
@@ -310,35 +350,43 @@ class RegisterFragment : Fragment() {
             }
         }
     }
+@SuppressLint("ObsoleteSdkInt")
+private fun getCurrentLocation() {
+    val progressDialog = ProgressDialog(requireContext())
+    progressDialog.setMessage("Getting current location...")
+    progressDialog.setCancelable(false)
+    progressDialog.show()
 
-    @SuppressLint("ObsoleteSdkInt")
-    private fun getCurrentLocation() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                if (isGPSEnabled()) {
-                    LocationServices.getFusedLocationProviderClient(requireContext())
-                        .requestLocationUpdates(locationRequest, object : LocationCallback() {
-                            override fun onLocationResult(locationResult: LocationResult) {
-                                super.onLocationResult(locationResult)
-                                LocationServices.getFusedLocationProviderClient(requireContext())
-                                    .removeLocationUpdates(this)
-                                if (locationResult.locations.isNotEmpty()) {
-                                    val index = locationResult.locations.size - 1
-                                    val latitude = locationResult.locations[index].latitude
-                                    val longitude = locationResult.locations[index].longitude
-                                    Toast.makeText(requireContext(), "Latitude: $latitude\nLongitude: $longitude", Toast.LENGTH_LONG).show()
-                                    currentLocation = Location(longitude, latitude)
-                                }
+    if (Build.VERSION.SDK_INT >= Build. VERSION_CODES.M) {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (isGPSEnabled()) {
+                LocationServices.getFusedLocationProviderClient(requireContext())
+                    .requestLocationUpdates(locationRequest, object : LocationCallback() {
+                        override fun onLocationResult(locationResult: LocationResult) {
+                            super.onLocationResult(locationResult)
+                            LocationServices.getFusedLocationProviderClient(requireContext())
+                                .removeLocationUpdates(this)
+                            if (locationResult.locations.isNotEmpty()) {
+                                val index = locationResult.locations.size - 1
+                                val latitude = locationResult.locations[index].latitude
+                                val longitude = locationResult.locations[index].longitude
+                                Toast.makeText(requireContext(), "Latitude: $latitude\nLongitude: $longitude", Toast.LENGTH_LONG).show()
+                                currentLocation = Location(longitude, latitude)
+                                progressDialog.dismiss()
                             }
-                        }, Looper.getMainLooper())
-                } else {
-                    turnOnGPS()
-                }
+                        }
+                    }, Looper.getMainLooper())
             } else {
-                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+                progressDialog.dismiss()
+                turnOnGPS()
             }
+        } else {
+            progressDialog.dismiss() // Dismiss the dialog box
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         }
     }
+}
+
 
     private fun turnOnGPS() {
         val builder = LocationSettingsRequest.Builder()
