@@ -20,9 +20,7 @@ class ForgotPasswordFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_forgot_password, container, false)
-
         val pageTitleTextView = view.findViewById<TextView>(R.id.pageTitle)
-
         if (pageTitleTextView != null) {
             pageTitleTextView.text = "Forgot Password"
         }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout8"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AboutUsFragment">
+
+    <TextView
+        android:id="@+id/tvAboutUs"
+        android:layout_width="393dp"
+        android:layout_height="374dp"
+        android:layout_marginTop="100dp"
+        android:text=" Welcome to Life After Dorm, your ultimate companion in navigating the exciting journey of finding the perfect room and roommate! Our innovative mobile app is designed to streamline the process of transitioning from dorm life to independent living, offering a seamless platform where users can effortlessly connect with like-minded individuals and discover ideal living spaces. Whether you're a student embarking on a new chapter or a young professional seeking accommodation, Life After Dorm empowers you to explore a myriad of options tailored to your preferences and budget. Say goodbye to the uncertainty of roommate compatibility and the stress of apartment hunting – with Life After Dorm, embrace the freedom of choice and embark on your next adventure with confidence!"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

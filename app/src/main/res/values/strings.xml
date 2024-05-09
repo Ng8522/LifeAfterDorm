@@ -291,4 +291,5 @@
         liability for any loss, direct or indirect, you experience as a result of relying wholly on
         this functionality of the app.
     </string>
+    <string name="logout">Log Out</string>
 </resources>

@@ -1,9 +1,11 @@
 package com.example.lifeafterdorm
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.TextUtils.replace
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import androidx.fragment.app.Fragment
@@ -12,7 +14,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import com.example.lifeafterdorm.controller.generateSalt
+import com.example.lifeafterdorm.controller.getUserId
+import com.example.lifeafterdorm.controller.isEmailExists
+import com.example.lifeafterdorm.controller.isPasswordExists
+import com.example.lifeafterdorm.controller.verifyPassword
 import com.example.lifeafterdorm.databinding.FragmentLoginBinding
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
@@ -43,9 +51,44 @@ class LoginFragment : Fragment() {
         binding.tvForgortPassword.text = spanForgotPass
         binding.tvForgortPassword.movementMethod = LinkMovementMethod.getInstance()
 
-
         binding.btnLogin.setOnClickListener {
-            SuccessLoginBox()
+            val errorMsg = ArrayList<String>()
+            val email:String = binding.ptEmail.text.toString().trim()
+            val password:String = binding.ptPassword.text.toString().trim()
+            if(email.isNotEmpty()&&password.isNotEmpty()){
+                isEmailExists(email) { emailExists ->
+                    if (!emailExists) {
+                        errorMsg.add("The email not found.Or you forgot to register?")
+                    }else{
+                        isPasswordExists(email){ getPassword ->
+                            if(getPassword.isNotEmpty()){
+                                val matchedPass = verifyPassword(password, getPassword, generateSalt())
+                                if(!matchedPass)
+                                    errorMsg.add("Password is incorrect.")
+
+                            }else{
+                                errorMsg.add("Password error.")
+                            }
+                        }
+                    }
+                }
+            }else{
+                errorMsg.add("Please fill in all mandatory fields.")
+            }
+            if (errorMsg.isEmpty()) {
+                getUserId(email){
+                    getId ->
+                    if(!getId.isNullOrBlank()){
+                        binding.userId = getId
+                    }else{
+                        errorMsg.add("Your id not found. Please register.")
+                    }
+                }
+                SuccessLoginBox()
+            } else {
+                FailedLoginBox(errorMsg.joinToString("\n"))
+            }
+
         }
         return view
     }
@@ -55,19 +98,20 @@ class LoginFragment : Fragment() {
         alertDialogBuilder.setTitle("Success")
         alertDialogBuilder.setMessage("Login successful!")
         alertDialogBuilder.setPositiveButton("Let's Go") { _, _ ->
-            findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
+            val intent = Intent(requireContext(), NavDrawerActivity::class.java)
+            startActivity(intent)
         }
         alertDialogBuilder.setCancelable(false)
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
     }
 
-    private fun FailedLoginBox() {
+    private fun FailedLoginBox(errorMsg:String) {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
         alertDialogBuilder.setTitle("Failed")
-        alertDialogBuilder.setMessage("Failed to login!Please try again.")
-        alertDialogBuilder.setPositiveButton("Try Again") { _, _ ->
-            Toast.makeText(requireContext(), "Failed to login! Please try again.", Toast.LENGTH_SHORT).show()
+        alertDialogBuilder.setMessage(errorMsg)
+        alertDialogBuilder.setPositiveButton("Try Again") { dialog, _ ->
+            dialog.dismiss()
         }
         alertDialogBuilder.setCancelable(false)
         val alertDialog = alertDialogBuilder.create()

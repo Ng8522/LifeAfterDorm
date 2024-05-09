@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout16"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PostRental3Fragment">
+
+    <TextView
+        android:id="@+id/tvPostRental3Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Amennities and Utilities Details"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:layout_editor_absoluteX="23dp"
+        tools:layout_editor_absoluteY="65dp" />
+
+    <CheckBox
+        android:id="@+id/cbNearLRT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="44dp"
+        android:text="Near LRT"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPostRental3Title" />
+
+    <CheckBox
+        android:id="@+id/cbNearBusStation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="44dp"
+        android:text="Near Bus Station"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.324"
+        app:layout_constraintStart_toEndOf="@+id/cbNearLRT"
+        app:layout_constraintTop_toBottomOf="@+id/tvPostRental3Title" />
+
+    <CheckBox
+        android:id="@+id/cbNearKTM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="20dp"
+        android:text="Near KTM"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cbNearLRT" />
+
+    <CheckBox
+        android:id="@+id/cbNearMRT"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Near MRT"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.431"
+        app:layout_constraintStart_toEndOf="@+id/cbNearKTM"
+        app:layout_constraintTop_toBottomOf="@+id/cbNearBusStation" />
+
+    <CheckBox
+        android:id="@+id/cb24hourssecurity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="20dp"
+        android:text="24 hours security"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cbNearKTM" />
+
+    <CheckBox
+        android:id="@+id/cbSportFacilities"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:text="Sport Facilities"
+        app:layout_constraintStart_toEndOf="@+id/cb24hourssecurity"
+        app:layout_constraintTop_toBottomOf="@+id/cbNearMRT" />
+
+    <CheckBox
+        android:id="@+id/cbCoveredCarPark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="20dp"
+        android:text="Covered Car Park"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb24hourssecurity" />
+
+    <CheckBox
+        android:id="@+id/cbNearRestaurant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:text="Near Restaurant"
+        app:layout_constraintStart_toEndOf="@+id/cbCoveredCarPark"
+        app:layout_constraintTop_toBottomOf="@+id/cbSportFacilities" />
+
+    <CheckBox
+        android:id="@+id/cbWiFi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="20dp"
+        android:text="WiFi"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cbCoveredCarPark" />
+
+    <CheckBox
+        android:id="@+id/cbMiniMarket"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="Mini Market"
+        app:layout_constraintStart_toEndOf="@+id/cbIncludeAirConditionerFee"
+        app:layout_constraintTop_toBottomOf="@+id/cbPrivateBathroom" />
+
+    <CheckBox
+        android:id="@+id/cbIncludeUtilitiesFees"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="20dp"
+        android:text="Include Utilities Fees"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cbWiFi" />
+
+    <CheckBox
+        android:id="@+id/cbAirConditionerWithMeter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84dp"
+        android:layout_marginTop="20dp"
+        android:text="Air Conditioner With Meter"
+        app:layout_constraintStart_toEndOf="@+id/cbWiFi"
+        app:layout_constraintTop_toBottomOf="@+id/cbNearRestaurant" />
+
+    <CheckBox
+        android:id="@+id/cbIncludeAirConditionerFee"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:text="Include Air Conditioner Fee"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cbIncludeUtilitiesFees" />
+
+    <CheckBox
+        android:id="@+id/cbPrivateBathroom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:text="Private Bathroom"
+        app:layout_constraintStart_toEndOf="@+id/cbIncludeUtilitiesFees"
+        app:layout_constraintTop_toBottomOf="@+id/cbAirConditionerWithMeter" />
+
+    <Button
+        android:id="@+id/btnPostRental3Next"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:text="Next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cbIncludeAirConditionerFee" />
+</androidx.constraintlayout.widget.ConstraintLayout>

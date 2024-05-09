@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout9"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FaqFragment">
+
+    <TextView
+        android:id="@+id/tvFaq1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="92dp"
+        android:text="1. Q: How does Life After Dorm ensure compatibility between roommates?"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvFaq1Answer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Life After Dorm utilizes a comprehensive matching algorithm that takes into account various factors such as lifestyle preferences, habits, schedules, and interests. Users are prompted to fill out detailed profiles, allowing the algorithm to make informed suggestions based on compatibility scores. Additionally, our platform encourages open communication between potential roommates through messaging features, enabling them to discuss expectations and ensure a harmonious living arrangement."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFaq1" />
+
+    <TextView
+        android:id="@+id/tvFaq2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="2. Q: Can I list my own property on Life After Dorm?"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFaq1Answer" />
+
+    <TextView
+        android:id="@+id/tvFaq2Answer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Absolutely! Life After Dorm provides a user-friendly interface for individuals to list their available rooms or properties. Whether you're a landlord, a homeowner, or a current tenant looking for a roommate, you can easily create a listing with detailed descriptions, photos, and preferences. Our platform facilitates seamless communication and scheduling for property viewings, helping you find the perfect match for your living space."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFaq2" />
+
+    <TextView
+        android:id="@+id/tvFaq3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="3. Q: Is Life After Dorm available in multiple cities?"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@+id/tvFaq2Answer"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <TextView
+        android:id="@+id/tvFaq3Answer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Yes, Life After Dorm is designed to cater to users across various cities and regions. Our platform aims to connect individuals seeking roommates and accommodation in urban areas, college towns, and beyond. Whether you're searching for a room in a bustling metropolis or a cozy apartment in a suburban neighborhood, Life After Dorm offers a diverse range of options to suit your needs. Simply set your location preferences and explore available listings in your desired area."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFaq3" />
+</androidx.constraintlayout.widget.ConstraintLayout>
