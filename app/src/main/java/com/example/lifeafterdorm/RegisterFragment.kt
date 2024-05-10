@@ -208,14 +208,12 @@ class RegisterFragment : Fragment() {
                                     name = "User $newUserid",
                                     email = email,
                                     gender = gender,
-                                    password = hashedPass,
                                     location = currentLocation,
                                     nationality = national,
                                     phoneNum = phoneNum,
                                     profileImg = imagePath.toString()
                                 )
-                                uploadImageToFirebase(newUserid)
-                                signUpWithUserClass(newUser)
+                                signUpWithUserClass(newUser, password, newUserid)
                             }
                         }
                     } else {
@@ -224,17 +222,14 @@ class RegisterFragment : Fragment() {
                             name = "User U0001",
                             email = email,
                             gender = gender,
-                            password = hashedPass,
                             location = currentLocation,
                             nationality = national,
                             phoneNum = phoneNum,
                             profileImg = imagePath.toString()
                         )
-                        uploadImageToFirebase("U0001")
-                        signUpWithUserClass(newUser)
+                        signUpWithUserClass(newUser, password, "U0001")
                     }
                 }
-                showSuccessDialog()
             } else {
                 showErrorDialog(errorMsg.joinToString("\n"))
             }
@@ -248,29 +243,26 @@ class RegisterFragment : Fragment() {
         val imgRef = storageRef.child("user_image/${id}.png")
         imgRef.putFile(imagePath)
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "upload successful", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), "Image Upload successful", Toast.LENGTH_LONG).show()
             }
             .addOnFailureListener{
                 Toast.makeText(requireContext(), "Fail to upload image", Toast.LENGTH_LONG).show()
             }
     }
 
-    private fun signUpWithUserClass(user: User) {
-        auth.createUserWithEmailAndPassword(user.email, user.password)
+    private fun signUpWithUserClass(user: User, password:String, userID:String) {
+        auth.createUserWithEmailAndPassword(user.email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     sendVerificationEmail(requireContext())
                     writeToFirebase(user)
+                    uploadImageToFirebase(userID)
+                    showSuccessDialog()
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Sign up failed. ${task.exception?.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showErrorDialog("Email is repeated registered.")
                 }
             }
     }
-
 
 
     private fun writeToFirebase(user: User) {
@@ -322,8 +314,6 @@ class RegisterFragment : Fragment() {
             binding.ivAvatar.setImageBitmap(bitmap)
         }
     }
-
-
 
     private fun showTermsAndCondition() {
         val dialogView = layoutInflater.inflate(R.layout.terms_and_conditions, null)

@@ -5,19 +5,17 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupWithNavController
+import com.example.lifeafterdorm.databinding.ActivityNavDrawerBinding
 import com.google.android.material.navigation.NavigationView
 
 class NavDrawerActivity : AppCompatActivity() {
@@ -26,17 +24,15 @@ class NavDrawerActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var myToolbar: Toolbar
+    private lateinit var binding:ActivityNavDrawerBinding
 
     lateinit var appBarConfiguration: AppBarConfiguration
     lateinit var navController: NavController
-//    lateinit var drawerLayout: DrawerLayout
     lateinit var navHostFragment: NavHostFragment
-//    private lateinit var toolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_nav_drawer)
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_nav_drawer)
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigationView)
         actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.menu_open,R.string.menu_close )
@@ -57,9 +53,7 @@ class NavDrawerActivity : AppCompatActivity() {
 
                 R.id.nav_profile -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
-
                     replaceFragment(ProfileFragment())
-
                     true
                 }
 
@@ -105,7 +99,6 @@ class NavDrawerActivity : AppCompatActivity() {
 
                 R.id.nav_rentalRoom -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
-
                     replaceFragment(RentalMainFragment())
 
                     true
@@ -113,7 +106,7 @@ class NavDrawerActivity : AppCompatActivity() {
 
                 R.id.nav_logout -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
-
+                    binding.userId = null
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
 

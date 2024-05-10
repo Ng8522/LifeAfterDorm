@@ -1,6 +1,7 @@
 package com.example.lifeafterdorm
 
 import android.app.AlertDialog
+import android.app.ProgressDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.Spannable
@@ -53,10 +54,15 @@ class LoginFragment : Fragment() {
             val errorMsg = ArrayList<String>()
             val email:String = binding.ptEmail.text.toString().trim()
             val password:String = binding.ptPassword.text.toString().trim()
+            val progressDialog = ProgressDialog(context)
+            progressDialog.setMessage("Login your account...")
+            progressDialog.setCancelable(false)
+            progressDialog.show()
             if(email.isNotEmpty()&&password.isNotEmpty()){
                 if (errorMsg.isEmpty()) {
-                    auth.signInWithEmailAndPassword(email, sha256(password))
+                    auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(requireActivity()) { task ->
+                            progressDialog.dismiss()
                             if (task.isSuccessful) {
                                 getUserId(email){
                                         getId ->

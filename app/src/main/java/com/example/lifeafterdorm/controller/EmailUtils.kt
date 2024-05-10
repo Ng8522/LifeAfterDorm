@@ -1,9 +1,14 @@
 package com.example.lifeafterdorm.controller
 
+import android.app.ProgressDialog
 import android.content.Context
 import android.util.Patterns
 import android.widget.Toast
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 
 private lateinit var dbRef : DatabaseReference
@@ -49,6 +54,15 @@ fun sendVerificationEmail(context: Context) {
             }
         }
 }
+
+
+
+
+
+
+
+
+
 
 
 
