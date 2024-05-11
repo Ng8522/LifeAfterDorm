@@ -5,21 +5,28 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import android.widget.Toast
+import com.example.lifeafterdorm.databinding.FragmentHomeBinding
+import com.google.firebase.database.DatabaseReference
+
 
 class HomeFragment : Fragment() {
 
-    private lateinit var myToolbar: Toolbar
+    private lateinit var binding: FragmentHomeBinding
+    private var userId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val myToolbar = (activity as AppCompatActivity).findViewById<Toolbar>(R.id.navDrawerToolbar)
-        myToolbar.title = "Home"
+        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        val view = inflater.inflate(R.layout.fragment_home, container, false)
-        return view
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        userId = arguments?.getString("userId")
+        Toast.makeText(requireContext(), userId, Toast.LENGTH_LONG).show()
+        binding.userid = userId
     }
 }

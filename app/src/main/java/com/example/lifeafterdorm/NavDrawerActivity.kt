@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -23,6 +22,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.example.lifeafterdorm.data.User
+import com.example.lifeafterdorm.data.UserPreferences
 import com.example.lifeafterdorm.databinding.ActivityNavDrawerBinding
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -50,34 +50,33 @@ class NavDrawerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_nav_drawer)
-        val userLoginId: String? = intent.getStringExtra("userid")
+        val userLoginId = intent.getStringExtra("userId")
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigationView)
         actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.menu_open,R.string.menu_close )
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
         dbRef = FirebaseDatabase.getInstance().reference
-
-        navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as NavHostFragment
-        navController = navHostFragment.navController
-
         myToolbar = findViewById(R.id.navDrawerToolbar)
-        myToolbar.title = "Drawer Menu"
+        myToolbar.title = "Home"
         setSupportActionBar(myToolbar)
         myToolbar.setTitleTextColor(Color.WHITE)
-        drawerHeaderData(this, userLoginId)
+        drawerHeaderData(userLoginId)
         getProfileImage(this, userLoginId)
+        if (userLoginId != null) {
+            findPreferences(userLoginId)
+        }
         navigationView.setNavigationItemSelectedListener { menuItem ->
              when (menuItem.itemId) {
              R.id.nav_profile -> {
                 drawerLayout.closeDrawer(GravityCompat.START)
-                replaceFragment(ProfileFragment(), userLoginId)
+                replaceFragment(ProfileFragment(), userLoginId, "Profile")
                 true
                 }
 
                 R.id.nav_settings -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
-                    replaceFragment(SettingsFragment(), userLoginId)
+                    replaceFragment(SettingsFragment(), userLoginId, "Settings")
 
                     true
                 }
@@ -85,7 +84,7 @@ class NavDrawerActivity : AppCompatActivity() {
                 R.id.nav_home -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
 
-                    replaceFragment(HomeFragment(), userLoginId)
+                    replaceFragment(HomeFragment(), userLoginId, "Home")
 
                     true
                 }
@@ -93,7 +92,7 @@ class NavDrawerActivity : AppCompatActivity() {
                 R.id.nav_favouriteList -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
 
-                    replaceFragment(FavouriteListFragment(), userLoginId)
+                    replaceFragment(FavouriteListFragment(), userLoginId, "Favourite List")
 
                     true
                 }
@@ -101,7 +100,7 @@ class NavDrawerActivity : AppCompatActivity() {
                 R.id.nav_changePassword -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
 
-                    replaceFragment(RecoverPasswordFragment(), userLoginId)
+                    replaceFragment(RecoverPasswordFragment(), userLoginId, "Change Password")
 
                     true
                 }
@@ -109,14 +108,14 @@ class NavDrawerActivity : AppCompatActivity() {
                 R.id.nav_community -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
 
-                    replaceFragment(CommunityFragment(), userLoginId)
+                    replaceFragment(CommunityFragment(), userLoginId, "Community")
 
                     true
                 }
 
                 R.id.nav_rentalRoom -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
-                    replaceFragment(RentalMainFragment(), userLoginId)
+                    replaceFragment(RentalMainFragment(), userLoginId, "Rental Room")
 
                     true
                 }
@@ -133,15 +132,20 @@ class NavDrawerActivity : AppCompatActivity() {
         }
     }
 
-    private fun replaceFragment(fragment: Fragment, userId: String?) {
+    private fun replaceFragment(fragment: Fragment, userId: String?, title:String) {
+        val enterAnimation = R.anim.slide_in_from_right
+        val exitAnimation = R.anim.slide_out_to_left
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragmentContainer, fragment.apply {
+        val fragmentWithUserId = fragment.apply {
             arguments = Bundle().apply {
                 putString("userId", userId)
             }
-        })
+        }
+        transaction.replace(R.id.fragmentContainer, fragmentWithUserId)
+        transaction.setCustomAnimations(enterAnimation, exitAnimation)
         transaction.addToBackStack(null)
         transaction.commit()
+        supportActionBar?.title = title
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -150,7 +154,7 @@ class NavDrawerActivity : AppCompatActivity() {
         }
         else {
             when(item.itemId) {
-                R.id.menuHelp -> replaceFragment(HelpSupportFragment(), intent.getStringExtra("userid"))
+                R.id.menuHelp -> replaceFragment(HelpSupportFragment(), intent.getStringExtra("userid"), "Help & Support")
             }
         }
 
@@ -162,7 +166,7 @@ class NavDrawerActivity : AppCompatActivity() {
         return true
     }
 
-    private fun drawerHeaderData(context:Context,id:String?){
+    private fun drawerHeaderData(id:String?){
         dbRef = FirebaseDatabase.getInstance().getReference("User")
         dbRef.orderByChild("id").equalTo(id).addListenerForSingleValueEvent(
             object : ValueEventListener {
@@ -209,6 +213,55 @@ class NavDrawerActivity : AppCompatActivity() {
             this.startActivity(intent)
         }
         alertDialogBuilder.setCancelable(false)
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
+    private fun findPreferences(id:String){
+        dbRef = FirebaseDatabase.getInstance().getReference("UserPreferences")
+        dbRef.addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    for(upSnap in snapshot.children){
+                        val up = upSnap.getValue(UserPreferences::class.java)
+                        if(up != null && up.id == id){
+                            goMakePreferencesBox(id)
+                        }
+                    }
+                }else{
+                    goMakePreferencesBox(id)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+        })
+
+    }
+
+    private fun goMakePreferencesBox(id:String){
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setTitle("Welcome")
+        alertDialogBuilder.setMessage("You haven't make your preferences yet. Want to shared your preferences to us?")
+        alertDialogBuilder.setPositiveButton("Let's Go") { dialog, _ ->
+            val enterAnimation = R.anim.slide_in_from_right
+            val exitAnimation = R.anim.slide_out_to_left
+            val fragment = ProfileFragment()
+            val transaction = supportFragmentManager.beginTransaction()
+            transaction?.replace(R.id.fragmentContainer, fragment.apply {
+                arguments = Bundle().apply {
+                    putString("userId", id)
+                }
+            })
+            transaction?.setCustomAnimations(enterAnimation, exitAnimation)
+            transaction?.replace(R.id.fragmentContainer, fragment)
+            transaction?.addToBackStack(null)
+            transaction?.commit()
+        }
+        alertDialogBuilder.setNegativeButton("Do it later"){ dialog, _ ->
+            dialog.dismiss()
+        }
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
     }

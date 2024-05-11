@@ -2,6 +2,7 @@ package com.example.lifeafterdorm.controller
 
 import android.content.Context
 import android.widget.Toast
+import com.example.lifeafterdorm.data.User
 import com.google.firebase.database.*
 
 private lateinit var dbRef : DatabaseReference
@@ -11,18 +12,24 @@ fun isValidPhoneNumber(phoneNumber: String): Boolean {
     return phoneNumber.matches(phonePattern.toRegex())
 }
 
-fun isPhoneExists(context: Context, phoneNum: String):Boolean {
-    var find = false
+fun isPhoneExists(context: Context, phoneNumber: String) : Boolean {
     dbRef = FirebaseDatabase.getInstance().getReference("User")
-    dbRef.orderByChild("phoneNum").equalTo(phoneNum).addListenerForSingleValueEvent(object :
-        ValueEventListener {
+    var phoneExist = false
+    dbRef.addValueEventListener(object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
-            if(snapshot.exists()){
-                find = true
+            if (snapshot.exists()) {
+                for (phoneSnap in snapshot.children) {
+                    val user = phoneSnap.getValue(User::class.java)
+                    if(user != null && user.phoneNum == phoneNumber){
+                        phoneExist = true
+                        break
+                    }
+                }
             }
         }
         override fun onCancelled(error: DatabaseError) {
-            Toast.makeText(context, "Error: $error", Toast.LENGTH_LONG).show()        }
+            Toast.makeText(context, "Error: $error", Toast.LENGTH_LONG).show()
+        }
     })
-    return find
+    return false
 }

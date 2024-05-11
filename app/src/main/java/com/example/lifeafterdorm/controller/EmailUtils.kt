@@ -18,22 +18,6 @@ fun isValidEmail(email: String): Boolean {
     return Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }
 
-fun isEmailExists(context: Context, email: String):Boolean {
-    var find = false
-    dbRef = FirebaseDatabase.getInstance().getReference("User")
-    dbRef.orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object :
-        ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-            if(snapshot.exists()){
-                find = true
-            }
-        }
-        override fun onCancelled(error: DatabaseError) {
-            Toast.makeText(context, "Error: $error", Toast.LENGTH_LONG).show()        }
-    })
-    return find
-}
-
 fun sendVerificationEmail(context: Context) {
     val user = Firebase.auth.currentUser
     user!!.sendEmailVerification()

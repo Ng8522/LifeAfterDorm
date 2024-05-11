@@ -4,43 +4,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_main"
     app:startDestination="@id/homeFragment">
-
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.lifeafterdorm.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
-            android:id="@+id/action_homeFragment_to_settingsFragment2"
-            app:destination="@id/settingsFragment2" />
+            android:id="@+id/action_homeFragment_to_aboutUsFragment"
+            app:destination="@id/aboutUsFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_helpSupportFragment"
-            app:destination="@id/helpSupportFragment" />
+            android:id="@+id/action_homeFragment_to_favouriteListFragment"
+            app:destination="@id/favouriteListFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_forgotPasswordFragment2"
-            app:destination="@id/forgotPasswordFragment2" />
+            android:id="@+id/action_homeFragment_to_profileFragment4"
+            app:destination="@id/profileFragment" />
     </fragment>
     <fragment
-        android:id="@+id/settingsFragment2"
-        android:name="com.example.lifeafterdorm.SettingsFragment"
-        android:label="fragment_settings"
-        tools:layout="@layout/fragment_settings" >
+        android:id="@+id/aboutUsFragment"
+        android:name="com.example.lifeafterdorm.AboutUsFragment"
+        android:label="fragment_about_us"
+        tools:layout="@layout/fragment_about_us" />
+    <fragment
+        android:id="@+id/favouriteListFragment"
+        android:name="com.example.lifeafterdorm.FavouriteListFragment"
+        android:label="fragment_favourite_list"
+        tools:layout="@layout/fragment_favourite_list" >
         <action
-            android:id="@+id/action_settingsFragment2_to_homeFragment"
+            android:id="@+id/action_favouriteListFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_favouriteListFragment_to_favouriteListDetailsFragment"
+            app:destination="@id/favouriteListDetailsFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/favouriteListDetailsFragment"
+        android:name="com.example.lifeafterdorm.FavouriteListDetailsFragment"
+        android:label="fragment_favourite_list_details"
+        tools:layout="@layout/fragment_favourite_list_details" />
     <fragment
         android:id="@+id/helpSupportFragment"
         android:name="com.example.lifeafterdorm.HelpSupportFragment"
         android:label="fragment_help_support"
         tools:layout="@layout/fragment_help_support" />
     <fragment
-        android:id="@+id/forgotPasswordFragment2"
-        android:name="com.example.lifeafterdorm.ForgotPasswordFragment"
-        android:label="fragment_forgot_password"
-        tools:layout="@layout/fragment_forgot_password" >
+        android:id="@+id/profileFragment"
+        android:name="com.example.lifeafterdorm.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" >
         <action
-            android:id="@+id/action_forgotPasswordFragment2_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            android:id="@+id/action_profileFragment_to_recoverPasswordFragment"
+            app:destination="@id/recoverPasswordFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/recoverPasswordFragment"
+        android:name="com.example.lifeafterdorm.RecoverPasswordFragment"
+        android:label="fragment_recover_password"
+        tools:layout="@layout/fragment_recover_password" />
 </navigation>

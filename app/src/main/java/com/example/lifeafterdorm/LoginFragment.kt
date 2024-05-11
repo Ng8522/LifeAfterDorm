@@ -103,7 +103,7 @@ class LoginFragment : Fragment() {
         alertDialogBuilder.setMessage("Login successful!")
         alertDialogBuilder.setPositiveButton("Let's Go") { _, _ ->
             val intent = Intent(requireContext(), NavDrawerActivity::class.java)
-            intent.putExtra("userid", binding.userid)
+            intent.putExtra("userId", binding.userid)
             startActivity(intent)
         }
         alertDialogBuilder.setCancelable(false)

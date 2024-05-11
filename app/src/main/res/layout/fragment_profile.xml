@@ -1,26 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
-
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ProfileFragment">
     <data>
         <variable
             name="userid"
             type="String" />
     </data>
+    <ScrollView
+        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:descendantFocusability="beforeDescendants"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/frameLayout15"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
         tools:context=".ProfileFragment">
+
+        <RelativeLayout
+            android:id="@+id/layoutInterest"
+            android:layout_width="301dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/grey"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvProfileInterest">
+
+            <CheckBox
+                android:id="@+id/chkSingle"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="40dp"
+                android:checked="false"
+                android:text="Single Room"
+                android:theme="@style/colored_checkBox"/>
+
+            <CheckBox
+                android:id="@+id/chkMiddle"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="50dp"
+                android:layout_toEndOf="@id/chkSingle"
+                android:layout_toRightOf="@id/chkSingle"
+                android:text="Middle Room"
+                android:theme="@style/colored_checkBox"/>
+
+            <CheckBox
+                android:id="@+id/chkMaster"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/chkSingle"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="20dp"
+                android:theme="@style/colored_checkBox"
+                android:text="Master Room" />
+
+            <CheckBox
+                android:id="@+id/chkSoho"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/chkMiddle"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="20dp"
+                android:layout_toEndOf="@id/chkMaster"
+                android:theme="@style/colored_checkBox"
+                android:text="Soho" />
+
+            <CheckBox
+                android:id="@+id/chkStudio"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/chkMaster"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="20dp"
+                android:theme="@style/colored_checkBox"
+                android:text="Studio" />
+
+            <CheckBox
+                android:id="@+id/chkSuite"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/chkSoho"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="20dp"
+                android:layout_toEndOf="@id/chkStudio"
+                android:theme="@style/colored_checkBox"
+                android:text="Suite" />
+
+            <CheckBox
+                android:id="@+id/chkPrivate"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/chkSuite"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="20dp"
+                android:theme="@style/colored_checkBox"
+                android:text="Private Romm" />
+
+            <CheckBox
+                android:id="@+id/chkShared"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_below="@id/chkSuite"
+                android:layout_toEndOf="@id/chkPrivate"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="20dp"
+                android:theme="@style/colored_checkBox"
+                android:text="Shared Room" />
+        </RelativeLayout>
 
         <ImageView
             android:id="@+id/ivProfile"
             android:layout_width="95dp"
             android:layout_height="90dp"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="80dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="40dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@tools:sample/avatars" />
@@ -29,9 +133,11 @@
             android:id="@+id/tvProfileUserName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="92dp"
+            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.16"
+            app:layout_constraintHorizontal_bias="0.172"
             app:layout_constraintStart_toEndOf="@+id/ivProfile"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -41,6 +147,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Set Profile Photo"
+            android:backgroundTint="@color/blue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.255"
             app:layout_constraintStart_toEndOf="@+id/imageViewProfileSetImage"
@@ -83,7 +190,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="Nationality"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tfProfileNameValue" />
@@ -93,22 +200,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="28dp"
             android:text="Location"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextText2" />
+            app:layout_constraintTop_toBottomOf="@id/spinnerProfileNational" />
 
         <TextView
             android:id="@+id/tcProfilePreference"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:text="Preference"
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/spinnerProfileLocation" />
+            app:layout_constraintTop_toBottomOf="@id/tfPhone"/>
 
         <TextView
             android:id="@+id/tvProfileMinBudget"
@@ -125,7 +232,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="76dp"
-            android:text="TextView"
+            android:text="Max Budget"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.068"
             app:layout_constraintStart_toEndOf="@+id/tvProfileMinBudget"
@@ -145,57 +252,43 @@
             android:id="@+id/btnProfileChangePassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="40dp"
+            android:backgroundTint="@color/blue"
             android:text="Change Password"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/spinnerProfileInterest" />
+            app:layout_constraintTop_toBottomOf="@+id/layoutInterest" />
 
         <Button
             android:id="@+id/btnProfileSaveChanges"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="40dp"
+            android:backgroundTint="@color/blue"
             android:text="Save Changes"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.26"
             app:layout_constraintStart_toEndOf="@+id/btnProfileChangePassword"
-            app:layout_constraintTop_toBottomOf="@+id/spinnerProfileInterest" />
+            app:layout_constraintTop_toBottomOf="@id/layoutInterest" />
 
         <EditText
             android:id="@+id/tfProfileNameValue"
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:ems="10"
             android:inputType="text"
-            android:text="Name"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.43"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvProfileName" />
 
-        <EditText
-            android:id="@+id/editTextText2"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:ems="10"
-            android:inputType="text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.43"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvProfileNationality" />
-
         <Spinner
-            android:id="@+id/spinnerProfileLocation"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:id="@+id/spinnerProfileNational"
+            android:layout_width="305dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.43"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvProfileLocation" />
+            app:layout_constraintTop_toBottomOf="@id/tvProfileNationality" />
 
         <EditText
             android:id="@+id/tfProfileMinBudget"
@@ -204,7 +297,8 @@
             android:layout_marginStart="40dp"
             android:layout_marginTop="8dp"
             android:ems="10"
-            android:inputType="text"
+            android:hint="E.g: XXX.XX"
+            android:inputType="numberDecimal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvProfileMinBudget" />
 
@@ -214,20 +308,67 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:ems="10"
-            android:inputType="text"
+            android:hint="E.g: XXX.XX"
+            android:inputType="numberDecimal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.15"
             app:layout_constraintStart_toEndOf="@+id/tfProfileMinBudget"
             app:layout_constraintTop_toBottomOf="@+id/tvProfileMaxBudget" />
 
-        <Spinner
-            android:id="@+id/spinnerProfileInterest"
-            android:layout_width="300dp"
+        <Button
+            android:id="@+id/btnGetNewLocation"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.43"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="9dp"
+            android:backgroundTint="@color/blue"
+            android:text="Get New Location"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvProfileInterest" />
+            app:layout_constraintTop_toBottomOf="@+id/tvProfileLocation" />
+
+        <TextView
+            android:id="@+id/tvLinkLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="8dp"
+            android:text="See My Current Location"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnGetNewLocation" />
+
+        <TextView
+            android:id="@+id/tvPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="16dp"
+            android:text="Phone Number"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvLinkLocation" />
+
+        <EditText
+            android:id="@+id/tfPhone"
+            android:layout_width="329dp"
+            android:layout_height="41dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="12dp"
+            android:ems="10"
+            android:inputType="phone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvPhone" />
+
+        <Button
+            android:id="@+id/btnGender"
+            android:layout_width="131dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="144dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/blue"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvProfileUserName" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
 </layout>

@@ -92,7 +92,7 @@ class RegisterFragment : Fragment() {
         val bitmap = BitmapFactory.decodeResource(resources, defaultImageResource)
         val file = File(requireContext().cacheDir, "default_user.png")
         file.createNewFile()
-
+        imagePath = Uri.fromFile(file)
         val outputStream = FileOutputStream(file)
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
         outputStream.close()
@@ -161,11 +161,7 @@ class RegisterFragment : Fragment() {
                 if(!passwordFormat(password)){
                     errorMsg.add("Password format wrong must be 1 Upper & lowercase, special character and number.")
                 }
-                var emailExist = isEmailExists(requireContext(), email)
 
-                if (emailExist) {
-                    errorMsg.add("This email has already been used.")
-                }
                 val checkedRadioButtonId = binding.rbgGender.checkedRadioButtonId
                 if (checkedRadioButtonId != -1) {
                     gender = when (checkedRadioButtonId) {
@@ -187,46 +183,45 @@ class RegisterFragment : Fragment() {
                 if(!isValidPhoneNumber(phoneNum)){
                     errorMsg.add("Your phone number format is wrong.")
                 }
+                if(!binding.cbTerms.isChecked)
+                    errorMsg.add("Please read our terms and conditions and check it.")
+
+                if (errorMsg.isEmpty()) {
+                    isUserIDExists(requireContext()) { idExisted ->
+                        if (idExisted) {
+                            readLatestUserIDFromFirebase(requireContext()) { latestID ->
+                                if (latestID != null) {
+                                    val newUserid = incrementID(latestID)
+                                    val newUser = User(
+                                        id = newUserid,
+                                        name = "User $newUserid",
+                                        email = email,
+                                        gender = gender,
+                                        location = currentLocation,
+                                        nationality = national,
+                                        phoneNum = phoneNum,
+                                    )
+                                    signUpWithUserClass(newUser, password, newUserid)
+                                }
+                            }
+                        } else {
+                            val newUser = User(
+                                id = "U0001",
+                                name = "User U0001",
+                                email = email,
+                                gender = gender,
+                                location = currentLocation,
+                                nationality = national,
+                                phoneNum = phoneNum,
+                            )
+                            signUpWithUserClass(newUser, password, "U0001")
+                        }
+                    }
+                } else {
+                    showErrorDialog(errorMsg.joinToString("\n"))
+                }
             }else{
                 errorMsg.add("Please field in all mandatory details.\nClick 'Get Me' button to get location")
-            }
-
-            if(!binding.cbTerms.isChecked)
-                errorMsg.add("Please read our terms and conditions and check it.")
-
-            if (errorMsg.isEmpty()) {
-                isUserIDExists(requireContext()) { idExisted ->
-                    if (idExisted) {
-                        readLatestUserIDFromFirebase(requireContext()) { latestID ->
-                            if (latestID != null) {
-                                val newUserid = incrementID(latestID)
-                                val newUser = User(
-                                    id = newUserid,
-                                    name = "User $newUserid",
-                                    email = email,
-                                    gender = gender,
-                                    location = currentLocation,
-                                    nationality = national,
-                                    phoneNum = phoneNum,
-                                )
-                                signUpWithUserClass(newUser, password, newUserid)
-                            }
-                        }
-                    } else {
-                        val newUser = User(
-                            id = "U0001",
-                            name = "User U0001",
-                            email = email,
-                            gender = gender,
-                            location = currentLocation,
-                            nationality = national,
-                            phoneNum = phoneNum,
-                        )
-                        signUpWithUserClass(newUser, password, "U0001")
-                    }
-                }
-            } else {
-                showErrorDialog(errorMsg.joinToString("\n"))
             }
         }
 
