@@ -16,9 +16,9 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val myToolbar = (activity as AppCompatActivity).findViewById<Toolbar>(R.id.navDrawerToolbar)
         myToolbar.title = "Profile"
+
 
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }

@@ -1,3 +1,4 @@
+
 package com.example.lifeafterdorm
 
 import android.Manifest
@@ -89,13 +90,12 @@ class RegisterFragment : Fragment() {
         spinner.adapter = adapter
         val defaultImageResource = R.drawable.default_user
         val bitmap = BitmapFactory.decodeResource(resources, defaultImageResource)
-        val file = File(requireContext().cacheDir, "default_user.jpg")
+        val file = File(requireContext().cacheDir, "default_user.png")
         file.createNewFile()
 
         val outputStream = FileOutputStream(file)
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
         outputStream.close()
-        imagePath = Uri.fromFile(file)
 
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -111,7 +111,7 @@ class RegisterFragment : Fragment() {
         val spanMap = SpannableString(binding.tvLocateDetail.text)
         val clickableMap = object : ClickableSpan() {
             override fun onClick(widget: View) {
-                if (::currentLocation.isInitialized) { // Check if currentLocation is initialized
+                if (::currentLocation.isInitialized) {
                     openGoogleMaps(currentLocation)
                 } else {
                     Toast.makeText(requireContext(), "Press 'Get Me' to get location data.", Toast.LENGTH_SHORT).show()
@@ -155,19 +155,16 @@ class RegisterFragment : Fragment() {
             val phoneNum: String = binding.tfPhoneNum.text.toString().trim()
             val errorMsg = ArrayList<String>()
             var gender:String = ""
-            var hashedPass:String = ""
 
             if(email.isNotEmpty() && password.isNotEmpty() && phoneNum.isNotEmpty() &&
-            ::currentLocation.isInitialized && national.isNotEmpty() && binding.rbgGender.isNotEmpty()){
+                ::currentLocation.isInitialized && national.isNotEmpty() && binding.rbgGender.isNotEmpty()){
                 if(!passwordFormat(password)){
                     errorMsg.add("Password format wrong must be 1 Upper & lowercase, special character and number.")
-                }else{
-                    hashedPass = sha256(password)
                 }
                 var emailExist = isEmailExists(requireContext(), email)
 
                 if (emailExist) {
-                        errorMsg.add("This email has already been used.")
+                    errorMsg.add("This email has already been used.")
                 }
                 val checkedRadioButtonId = binding.rbgGender.checkedRadioButtonId
                 if (checkedRadioButtonId != -1) {
@@ -211,7 +208,6 @@ class RegisterFragment : Fragment() {
                                     location = currentLocation,
                                     nationality = national,
                                     phoneNum = phoneNum,
-                                    profileImg = imagePath.toString()
                                 )
                                 signUpWithUserClass(newUser, password, newUserid)
                             }
@@ -225,7 +221,6 @@ class RegisterFragment : Fragment() {
                             location = currentLocation,
                             nationality = national,
                             phoneNum = phoneNum,
-                            profileImg = imagePath.toString()
                         )
                         signUpWithUserClass(newUser, password, "U0001")
                     }
@@ -340,42 +335,42 @@ class RegisterFragment : Fragment() {
             }
         }
     }
-@SuppressLint("ObsoleteSdkInt")
-private fun getCurrentLocation() {
-    val progressDialog = ProgressDialog(requireContext())
-    progressDialog.setMessage("Getting current location...")
-    progressDialog.setCancelable(false)
-    progressDialog.show()
+    @SuppressLint("ObsoleteSdkInt")
+    private fun getCurrentLocation() {
+        val progressDialog = ProgressDialog(requireContext())
+        progressDialog.setMessage("Getting current location...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
 
-    if (Build.VERSION.SDK_INT >= Build. VERSION_CODES.M) {
-        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            if (isGPSEnabled()) {
-                LocationServices.getFusedLocationProviderClient(requireContext())
-                    .requestLocationUpdates(locationRequest, object : LocationCallback() {
-                        override fun onLocationResult(locationResult: LocationResult) {
-                            super.onLocationResult(locationResult)
-                            LocationServices.getFusedLocationProviderClient(requireContext())
-                                .removeLocationUpdates(this)
-                            if (locationResult.locations.isNotEmpty()) {
-                                val index = locationResult.locations.size - 1
-                                val latitude = locationResult.locations[index].latitude
-                                val longitude = locationResult.locations[index].longitude
-                                Toast.makeText(requireContext(), "Latitude: $latitude\nLongitude: $longitude", Toast.LENGTH_LONG).show()
-                                currentLocation = Location(longitude, latitude)
-                                progressDialog.dismiss()
+        if (Build.VERSION.SDK_INT >= Build. VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                if (isGPSEnabled()) {
+                    LocationServices.getFusedLocationProviderClient(requireContext())
+                        .requestLocationUpdates(locationRequest, object : LocationCallback() {
+                            override fun onLocationResult(locationResult: LocationResult) {
+                                super.onLocationResult(locationResult)
+                                LocationServices.getFusedLocationProviderClient(requireContext())
+                                    .removeLocationUpdates(this)
+                                if (locationResult.locations.isNotEmpty()) {
+                                    val index = locationResult.locations.size - 1
+                                    val latitude = locationResult.locations[index].latitude
+                                    val longitude = locationResult.locations[index].longitude
+                                    Toast.makeText(requireContext(), "Latitude: $latitude\nLongitude: $longitude", Toast.LENGTH_LONG).show()
+                                    currentLocation = Location(longitude, latitude)
+                                    progressDialog.dismiss()
+                                }
                             }
-                        }
-                    }, Looper.getMainLooper())
+                        }, Looper.getMainLooper())
+                } else {
+                    progressDialog.dismiss()
+                    turnOnGPS()
+                }
             } else {
-                progressDialog.dismiss()
-                turnOnGPS()
+                progressDialog.dismiss() // Dismiss the dialog box
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
             }
-        } else {
-            progressDialog.dismiss() // Dismiss the dialog box
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         }
     }
-}
 
 
     private fun turnOnGPS() {

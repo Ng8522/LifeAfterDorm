@@ -15,14 +15,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.example.lifeafterdorm.controller.getUserId
-import com.example.lifeafterdorm.controller.sha256
 import com.example.lifeafterdorm.databinding.FragmentLoginBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.example.lifeafterdorm.data.User
 
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
     private var auth = FirebaseAuth.getInstance()
-
+    private lateinit var user:User
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -67,9 +67,14 @@ class LoginFragment : Fragment() {
                                 getUserId(email){
                                         getId ->
                                     if(!getId.isNullOrBlank()){
-                                        binding.userId = getId
-                                        Toast.makeText(requireContext(), "Sign in successful! Your user id is ${binding.userId}", Toast.LENGTH_SHORT).show()
-                                        SuccessLoginBox()
+                                        binding.userid = getId
+                                        val userData = binding.userid
+                                        if (userData != null) {
+                                            Toast.makeText(requireContext(), "Sign in successful! Your user id is ${userData}", Toast.LENGTH_SHORT).show()
+                                            SuccessLoginBox()
+                                        }else{
+                                            FailedLoginBox("Your id not saved.")
+                                        }
                                     }else{
                                         FailedLoginBox("Your id not found. Please register.")
                                     }
@@ -80,9 +85,11 @@ class LoginFragment : Fragment() {
                             }
                         }
                 } else {
+                    progressDialog.dismiss()
                     FailedLoginBox(errorMsg.joinToString("\n"))
                 }
             }else{
+                progressDialog.dismiss()
                 FailedLoginBox("Please fill in all mandatory fields.")
             }
 
@@ -96,6 +103,7 @@ class LoginFragment : Fragment() {
         alertDialogBuilder.setMessage("Login successful!")
         alertDialogBuilder.setPositiveButton("Let's Go") { _, _ ->
             val intent = Intent(requireContext(), NavDrawerActivity::class.java)
+            intent.putExtra("userid", binding.userid)
             startActivity(intent)
         }
         alertDialogBuilder.setCancelable(false)

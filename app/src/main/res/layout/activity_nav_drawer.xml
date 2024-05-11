@@ -4,7 +4,7 @@
 
     <data>
         <variable
-            name="userId"
+            name="userid"
             type="String" />
     </data>
 

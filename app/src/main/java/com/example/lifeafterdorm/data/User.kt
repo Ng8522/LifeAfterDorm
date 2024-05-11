@@ -7,7 +7,6 @@ data class User(var id:String="",
     var location:Location = Location(0.0, 0.0),
     var nationality:String = "",
     var phoneNum:String = "",
-    var profileImg:String = ""
     )
 
 

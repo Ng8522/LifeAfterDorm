@@ -1,14 +1,13 @@
 package com.example.lifeafterdorm.controller
 
-import android.app.ProgressDialog
 import android.content.Context
 import android.util.Patterns
 import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.AuthCredential
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.auth
 import com.google.firebase.database.*
 
 private lateinit var dbRef : DatabaseReference
@@ -36,24 +35,17 @@ fun isEmailExists(context: Context, email: String):Boolean {
 }
 
 fun sendVerificationEmail(context: Context) {
-    val user = auth.currentUser
-    user?.sendEmailVerification()
-        ?.addOnCompleteListener { task ->
+    val user = Firebase.auth.currentUser
+    user!!.sendEmailVerification()
+        .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Toast.makeText(
-                    context,
-                    "Verification email sent.",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    context,
-                    "Failed to send verification email. ${task.exception?.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, "Send verification to your email.", Toast.LENGTH_LONG).show()
+            }else{
+                Toast.makeText(context, "Email verification is failed to sent. Please check your email is entered correctly and not fake", Toast.LENGTH_LONG)
             }
         }
 }
+
 
 
 
