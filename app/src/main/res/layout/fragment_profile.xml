@@ -3,11 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ProfileFragment">
-    <data>
-        <variable
-            name="userid"
-            type="String" />
-    </data>
+
     <ScrollView
         android:layout_marginTop="50dp"
         android:layout_width="match_parent"

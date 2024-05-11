@@ -23,10 +23,5 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        userId = arguments?.getString("userId")
-        Toast.makeText(requireContext(), userId, Toast.LENGTH_LONG).show()
-        binding.userid = userId
-    }
+
 }

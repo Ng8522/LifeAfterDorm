@@ -2,12 +2,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-        <variable
-            name="userid"
-            type="String" />
-    </data>
-
     <androidx.drawerlayout.widget.DrawerLayout
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"

@@ -28,11 +28,14 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.example.lifeafterdorm.data.Location
+import com.example.lifeafterdorm.data.RoomType
 import com.example.lifeafterdorm.data.User
+import com.example.lifeafterdorm.data.UserPreferences
 import com.example.lifeafterdorm.databinding.FragmentProfileBinding
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
@@ -63,8 +66,27 @@ class ProfileFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var storageRef : StorageReference
     private lateinit var imagePath:Uri
+    private var refreshClickListener: OnRefreshClickListener? = null
+    private var currentDialog: AlertDialog? = null
 
 
+    interface OnRefreshClickListener {
+        fun onRefreshClick()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnRefreshClickListener) {
+            refreshClickListener = context
+        } else {
+            throw RuntimeException("$context must implement OnRefreshClickListener")
+        }
+    }
+    override fun onDetach() {
+        super.onDetach()
+        currentDialog?.dismiss()
+        currentDialog = null
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -77,7 +99,6 @@ class ProfileFragment : Fragment() {
             fastestInterval = 2000
         }
         val userId = arguments?.getString("userId")
-        binding.userid = userId
         val spinner = binding.spinnerProfileNational
         val nationalList = resources.getStringArray(R.array.countries_array)
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, nationalList)
@@ -131,16 +152,85 @@ class ProfileFragment : Fragment() {
                     "Female" -> "F"
                     else -> "N"
                 }
-                if(::newLocation.isInitialized && national.isNotEmpty() && newName.isNotEmpty() && newPhone.isNotEmpty()) {
-                    val updatedUser = User(
-                        name = newName,
-                        nationality = national,
-                        gender = genderData,
-                        phoneNum = newPhone,
-                        location = newLocation
-                    )
-                    saveUserChanges(userId, updatedUser)
-                }
+                val errorMsg = ArrayList<String>()
+                val maxBudget = binding.tfProfileMaxBudget.text.toString().trim().toDouble()
+                val minBudget = binding.tfProfileMinBudget.text.toString().trim().toDouble()
+                val chkSingle = binding.chkSingle.isChecked
+                val chkMiddle = binding.chkMiddle.isChecked
+                val chkMaster = binding.chkMaster.isChecked
+                val chkStudio = binding.chkStudio.isChecked
+                val chkSoho = binding.chkSoho.isChecked
+                val chkSuite = binding.chkSuite.isChecked
+                val chkPrivate = binding.chkPrivate.isChecked
+                val chkShared = binding.chkShared.isChecked
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle("Update Profile and Preferences")
+                    .setMessage("Do you want to update your profile and preferences?")
+                    .setPositiveButton("Update") { dialog, which ->
+                        if(::newLocation.isInitialized && national.isNotEmpty() && newName.isNotEmpty() &&
+                            newPhone.isNotEmpty() && binding.tfProfileMaxBudget.text.isNotEmpty() &&
+                            binding.tfProfileMaxBudget.text.isNotEmpty()) {
+                                val updatedUser = User(
+                                    name = newName,
+                                    nationality = national,
+                                    gender = genderData,
+                                    phoneNum = newPhone,
+                                    location = newLocation
+                                )
+
+                                if(maxBudget <= minBudget){
+                                    errorMsg.add("Minimum budget cannot more than maximum budget.")
+                                }
+
+                                if(!chkSingle && !chkMiddle &&!chkMaster &&!chkStudio &&!chkSoho &&!chkSuite &&!chkPrivate && !chkShared){
+                                    errorMsg.add("Please select a least one room type your preference.")
+                                }
+
+                                val updatePreferences = UserPreferences(
+                                    id = userId,
+                                    maxBudget = maxBudget,
+                                    minBudget = minBudget,
+                                    roomType = RoomType(
+                                        singleRoom = chkSingle,
+                                        middleRoom = chkMiddle,
+                                        masterRoom = chkMaster,
+                                        studio = chkStudio,
+                                        soho = chkSoho,
+                                        suite = chkSuite,
+                                        privateRoom = chkPrivate,
+                                        sharedRoom = chkShared
+                                    )
+                                )
+                                if (errorMsg.isEmpty()){
+                                    saveUserChanges(userId, updatedUser)
+                                    saveInterest(userId, updatePreferences)
+                                    refreshClickListener?.onRefreshClick()
+                                }else{
+                                    showDialog("Error", errorMsg.joinToString("\n"))
+                                }
+                            } else{
+                                showDialog("Error", "Please enter all the field to update all data.")
+                            }
+                        }
+                    .setNegativeButton("Cancel") { dialog, which ->
+                        dialog.dismiss()
+                    }
+                    .setNeutralButton("Profile Only") { dialog, which ->
+                        if(::newLocation.isInitialized && national.isNotEmpty() && newName.isNotEmpty() && newPhone.isNotEmpty()) {
+                            val updatedUser = User(
+                                name = newName,
+                                nationality = national,
+                                gender = genderData,
+                                phoneNum = newPhone,
+                                location = newLocation
+                            )
+                            saveUserChanges(userId, updatedUser)
+                            refreshClickListener?.onRefreshClick()
+                        }else{
+                            showDialog("Error", "Please enter all the field to update profile data.")
+                        }
+                    }
+                    .show()
             }
 
             binding.btnProfileChangePassword.setOnClickListener {
@@ -187,7 +277,54 @@ class ProfileFragment : Fragment() {
 
     }
 
-    private fun updateImg(id:String){
+    private fun saveInterest(id:String, userPreferences: UserPreferences){
+        dbRef = FirebaseDatabase.getInstance().getReference("UserPreferences")
+        dbRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    dbRef = FirebaseDatabase.getInstance().getReference("UserPreferences/$id")
+                    val preferencesData = HashMap<String, Any>()
+                    preferencesData["maxBudget"] = userPreferences.maxBudget
+                    preferencesData["minBudget"] = userPreferences.minBudget
+                    preferencesData["roomType"] = mapOf(
+                        "singleRoom" to userPreferences.roomType.singleRoom,
+                        "middleRoom" to userPreferences.roomType.middleRoom,
+                        "masterRoom" to userPreferences.roomType.masterRoom,
+                        "studio" to userPreferences.roomType.studio,
+                        "soho" to userPreferences.roomType.soho,
+                        "suite" to userPreferences.roomType.suite,
+                        "privateRoom" to userPreferences.roomType.privateRoom,
+                        "sharedRoom" to userPreferences.roomType.sharedRoom
+                    )
+                    dbRef.updateChildren(preferencesData).addOnSuccessListener {
+                        showDialog("Success","Interest data updated successfully.")
+                    }
+                        .addOnFailureListener { e ->
+                            showDialog("Failed","Interest data updated failed.")
+                        }
+                } else {
+                    dbRef.child(userPreferences.id).setValue(userPreferences).addOnCompleteListener{
+                        Toast.makeText(requireContext(), "Data saved", Toast.LENGTH_LONG).show()
+                    }
+                        .addOnFailureListener{
+                            Toast.makeText(requireContext(), "Error ${it.toString()}", Toast.LENGTH_LONG).show()
+                        }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(requireContext(), "Data failed to read", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
+
+    private fun updateImg(id: String) {
+        if (!isAdded) {
+            // Fragment is not attached, return or handle accordingly
+            return
+        }
+
         storageRef = FirebaseStorage.getInstance().reference
         val imgRef = storageRef.child("user_image/${id}.png")
         val bitmap = (binding.ivProfile.drawable as? BitmapDrawable)?.bitmap
@@ -198,15 +335,22 @@ class ProfileFragment : Fragment() {
             val imageData = baos.toByteArray()
             imgRef.putBytes(imageData)
                 .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Image updated successfully", Toast.LENGTH_SHORT).show()
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "Image updated successfully", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 .addOnFailureListener { exception ->
-                    Toast.makeText(requireContext(), "Failed to update image: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "Failed to update image: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
         } else {
-            Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show()
+            if (isAdded) {
+                Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show()
+            }
         }
     }
+
 
     private fun getUserData(id:String, nationalList: Array<String>, spinner:Spinner){
         dbRef = FirebaseDatabase.getInstance().getReference("User")
@@ -242,6 +386,33 @@ class ProfileFragment : Fragment() {
                                 else -> "No Prefer to say"
                             }
                             binding.btnGender.text = gender
+                            break
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(requireContext(), "Error: $error", Toast.LENGTH_LONG).show()
+            }
+        })
+        dbRef = FirebaseDatabase.getInstance().getReference("UserPreferences")
+        dbRef.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    for (upSnap in snapshot.children) {
+                        val up = upSnap.getValue(UserPreferences::class.java)
+                        if (up != null && up.id == id) {
+                            binding.tfProfileMaxBudget.setText(up.maxBudget.toString())
+                            binding.tfProfileMinBudget.setText(up.minBudget.toString())
+                            binding.chkSingle.isChecked = up.roomType.singleRoom
+                            binding.chkMiddle.isChecked = up.roomType.middleRoom
+                            binding.chkMaster.isChecked = up.roomType.masterRoom
+                            binding.chkStudio.isChecked = up.roomType.studio
+                            binding.chkSoho.isChecked = up.roomType.soho
+                            binding.chkSuite.isChecked = up.roomType.suite
+                            binding.chkPrivate.isChecked = up.roomType.privateRoom
+                            binding.chkShared.isChecked = up.roomType.sharedRoom
                             break
                         }
                     }
@@ -362,6 +533,8 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showDialog(title:String, msg:String) {
+        currentDialog?.dismiss()
+
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
         alertDialogBuilder.setTitle(title)
         alertDialogBuilder.setMessage(msg)

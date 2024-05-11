@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.DialogTitle
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
@@ -34,7 +35,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 
 
-class NavDrawerActivity : AppCompatActivity() {
+class NavDrawerActivity : AppCompatActivity() , ProfileFragment.OnRefreshClickListener{
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
@@ -42,15 +43,15 @@ class NavDrawerActivity : AppCompatActivity() {
     private lateinit var myToolbar: Toolbar
     private lateinit var binding:ActivityNavDrawerBinding
     private lateinit var dbRef : DatabaseReference
-
     lateinit var navController: NavController
     lateinit var navHostFragment: NavHostFragment
+    private lateinit var userLoginId:String
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_nav_drawer)
-        val userLoginId = intent.getStringExtra("userId")
+        userLoginId = intent.getStringExtra("userId").toString()
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigationView)
         actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.menu_open,R.string.menu_close )
@@ -65,18 +66,17 @@ class NavDrawerActivity : AppCompatActivity() {
         getProfileImage(this, userLoginId)
         if (userLoginId != null) {
             findPreferences(userLoginId)
-        }
-        navigationView.setNavigationItemSelectedListener { menuItem ->
+            navigationView.setNavigationItemSelectedListener { menuItem ->
              when (menuItem.itemId) {
              R.id.nav_profile -> {
                 drawerLayout.closeDrawer(GravityCompat.START)
-                replaceFragment(ProfileFragment(), userLoginId, "Profile")
+                replaceFragment(ProfileFragment(),  "Profile", userLoginId)
                 true
                 }
 
                 R.id.nav_settings -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
-                    replaceFragment(SettingsFragment(), userLoginId, "Settings")
+                    replaceFragment(SettingsFragment(), "Settings", userLoginId)
 
                     true
                 }
@@ -84,7 +84,7 @@ class NavDrawerActivity : AppCompatActivity() {
                 R.id.nav_home -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
 
-                    replaceFragment(HomeFragment(), userLoginId, "Home")
+                    replaceFragment(HomeFragment(), "Home", userLoginId)
 
                     true
                 }
@@ -92,7 +92,7 @@ class NavDrawerActivity : AppCompatActivity() {
                 R.id.nav_favouriteList -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
 
-                    replaceFragment(FavouriteListFragment(), userLoginId, "Favourite List")
+                    replaceFragment(FavouriteListFragment(), "Favourite List", userLoginId)
 
                     true
                 }
@@ -100,7 +100,7 @@ class NavDrawerActivity : AppCompatActivity() {
                 R.id.nav_changePassword -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
 
-                    replaceFragment(RecoverPasswordFragment(), userLoginId, "Change Password")
+                    replaceFragment(RecoverPasswordFragment(), "Change Password", userLoginId)
 
                     true
                 }
@@ -108,14 +108,14 @@ class NavDrawerActivity : AppCompatActivity() {
                 R.id.nav_community -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
 
-                    replaceFragment(CommunityFragment(), userLoginId, "Community")
+                    replaceFragment(CommunityFragment(), "Community", userLoginId)
 
                     true
                 }
 
                 R.id.nav_rentalRoom -> {
                     drawerLayout.closeDrawer(GravityCompat.START)
-                    replaceFragment(RentalMainFragment(), userLoginId, "Rental Room")
+                    replaceFragment(RentalMainFragment(), "Rental Room", userLoginId)
 
                     true
                 }
@@ -128,21 +128,17 @@ class NavDrawerActivity : AppCompatActivity() {
                 else -> {
                   false
                 }
-            }
+            }}
         }
     }
 
-    private fun replaceFragment(fragment: Fragment, userId: String?, title:String) {
-        val enterAnimation = R.anim.slide_in_from_right
-        val exitAnimation = R.anim.slide_out_to_left
+    private fun replaceFragment(fragment: Fragment, title: String, userId:String){
         val transaction = supportFragmentManager.beginTransaction()
-        val fragmentWithUserId = fragment.apply {
+        transaction.replace(R.id.fragmentContainer, fragment.apply {
             arguments = Bundle().apply {
                 putString("userId", userId)
             }
-        }
-        transaction.replace(R.id.fragmentContainer, fragmentWithUserId)
-        transaction.setCustomAnimations(enterAnimation, exitAnimation)
+        })
         transaction.addToBackStack(null)
         transaction.commit()
         supportActionBar?.title = title
@@ -154,7 +150,7 @@ class NavDrawerActivity : AppCompatActivity() {
         }
         else {
             when(item.itemId) {
-                R.id.menuHelp -> replaceFragment(HelpSupportFragment(), intent.getStringExtra("userid"), "Help & Support")
+                R.id.menuHelp -> replaceFragment(HelpSupportFragment(), "Help & Support", intent.getStringExtra("userId").toString())
             }
         }
 
@@ -225,6 +221,8 @@ class NavDrawerActivity : AppCompatActivity() {
                     for(upSnap in snapshot.children){
                         val up = upSnap.getValue(UserPreferences::class.java)
                         if(up != null && up.id == id){
+                            welcomeUser()
+                        }else{
                             goMakePreferencesBox(id)
                         }
                     }
@@ -265,6 +263,30 @@ class NavDrawerActivity : AppCompatActivity() {
         val alertDialog = alertDialogBuilder.create()
         alertDialog.show()
     }
+
+    private fun welcomeUser(){
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setTitle("Welcome")
+        alertDialogBuilder.setMessage("Welcome to Life After Dorm!")
+        alertDialogBuilder.setPositiveButton("Hello") { dialog, _ ->
+           dialog.dismiss()
+        }
+        alertDialogBuilder.setCancelable(false)
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
+    override fun onRefreshClick() {
+        val fragment = supportFragmentManager.findFragmentByTag("Profile")
+        if (fragment != null) {
+            supportFragmentManager.beginTransaction().remove(fragment).commit()
+        }
+        val intent = Intent(this, NavDrawerActivity::class.java)
+        intent.putExtra("userId", userLoginId)
+        startActivity(intent)
+        finish()
+    }
+
 }
 
 

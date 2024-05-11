@@ -57,6 +57,9 @@ import com.google.firebase.storage.StorageReference
 import java.io.File
 import java.io.FileOutputStream
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 
 
 class RegisterFragment : Fragment() {
@@ -69,6 +72,8 @@ class RegisterFragment : Fragment() {
     private lateinit var dbRef : DatabaseReference
     private lateinit var storageRef : StorageReference
     private var auth = FirebaseAuth.getInstance()
+    private var phoneExist = false
+
 
     @SuppressLint("WrongThread")
     override fun onCreateView(
@@ -172,17 +177,33 @@ class RegisterFragment : Fragment() {
                 } else {
                     errorMsg.add("Please select a gender.")
                 }
-
-                var phoneNumExist = isPhoneExists(requireContext(), phoneNum)
-                if(phoneNumExist)
-                    errorMsg.add("This phone already exists.")
-
+                dbRef = FirebaseDatabase.getInstance().getReference("User")
+                val phoneListener = object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        if (snapshot.exists()) {
+                            for (userSnap in snapshot.children) {
+                                val user = userSnap.getValue(User::class.java)
+                                if (user != null && user.phoneNum == phoneNum) {
+                                   phoneExist = true
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        Toast.makeText(context, "Error: $error", Toast.LENGTH_LONG).show()
+                    }
+                }
+                dbRef.addValueEventListener(phoneListener)
+                if(phoneExist)
+                    errorMsg.add("This phone number already had been registered.")
                 if(!isValidEmail(email)){
                     errorMsg.add("Email format wrong.")
                 }
                 if(!isValidPhoneNumber(phoneNum)){
                     errorMsg.add("Your phone number format is wrong.")
                 }
+
                 if(!binding.cbTerms.isChecked)
                     errorMsg.add("Please read our terms and conditions and check it.")
 
